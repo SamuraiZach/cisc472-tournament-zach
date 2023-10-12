@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tournament CISC472</title>
+    <link href="style.css" rel="stylesheet" type="text/css">
+    <!-- update the version number as needed -->
+    <script defer src="/__/firebase/10.4.0/firebase-app-compat.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script defer src="/__/firebase/10.4.0/firebase-auth-compat.js"></script>
+    <script defer src="/__/firebase/10.4.0/firebase-database-compat.js"></script>
+    <script defer src="/__/firebase/10.4.0/firebase-firestore-compat.js"></script>
+    <script defer src="/__/firebase/10.4.0/firebase-functions-compat.js"></script>
+    <script defer src="/__/firebase/10.4.0/firebase-messaging-compat.js"></script>
+    <script defer src="/__/firebase/10.4.0/firebase-storage-compat.js"></script>
+    <script defer src="/__/firebase/10.4.0/firebase-analytics-compat.js"></script>
+    <script defer src="/__/firebase/10.4.0/firebase-remote-config-compat.js"></script>
+    <script defer src="/__/firebase/10.4.0/firebase-performance-compat.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js'></script>
+
+    <!-- 
+      initialize the SDK after all desired features are loaded, set useEmulator to false
+      to avoid connecting the SDK to running emulators.
+    -->
+    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+    <script defer src="./source.js"></script>
+
+</head>
+
+<body>
+    <!--Get started click anywhere page-->
+    <div data-page="content" id="display">
+        <!---
+        <div class="toppart">
+            <h1 style="position: absolute;left:32%;top:25%">WELCOME TO THE TOURNAMENT SITE!</h1>
+        </div>
+        <div class="homebody">
+            <p>Click anywhere to get started!</p>
+            <button id="btn" class="btn">clickhere</button>
+        </div>--->
+    </div>
+    <!--Login Page / Signed out-->
+    <div data-page="template" id="page1">
+        <div class="toppart">
+            <h1 style="position: absolute;left:32%;top:25%">WELCOME TO THE TOURNAMENT SITE!</h1>
+            <button id="logbutton" class="logbutton">Log In! Google</button>
+            <button id="logbuttonDB" class="logbuttonDB">Log In!</button>
+            <dialog class="logReg" id="logReg">
+                <h1 style="text-align: center;">Welcome!</h1>
+                <label for="fnameL">Username:</label>
+                <input type="text" id="fnameL" name="fnameL" class="fnameL" value=""></input>
+                <label for="pwdL">Password:</label>
+                <input type="password" id="pwdL" name="pwdL" class="pwdL" value=""></input>
+                <label for="emailL">Email:</label>
+                <input type="email" id="emailL" name="emailL" class="emailL" value=""></input>
+                <button class="closeLog" id="closeLog">Submit</button>
+            </dialog>
+            <button id="registerbutton" class="registerbutton">Register Here!</button>
+            <dialog class="modalReg" id="modalReg">
+                <h1 style="text-align: center;">Welcome!</h1>
+                <label for="fnameR">Username:</label>
+                <input type="text" id="fnameR" name="fnameR" class="fnameR" value=""></input>
+                <label for="pwdR">Password:</label>
+                <input type="password" id="pwdR" name="pwdR" class="pwdR" value=""></input>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" class="email" value=""></input>
+                <button class="closeReg" id="closeReg">Submit</button>
+            </dialog>
+            <button id="helpbutton" class="helpbutton">Need Help?</button>
+            <p style="position:absolute;left: 1%;top: 60%;" id="da">Username:</p>
+        </div>
+        <div class="homebody">
+            <h1 id="introbody" class="introbody">Welcome to the tournament! Please sign in above to get started!</h1>
+        </div>
+    </div>
+    <!--Logged In-->
+    <div data-page="template" id="page2">
+        <div class="toppart">
+            <h1 style="position: absolute;left:32%;top:25%">WELCOME TO THE TOURNAMENT SITE!</h1>
+            <p style="position:absolute;left: 1%;top: 60%;" id="da">Username:</p>
+            <button id="logoutbutton" class="logoutbutton">Logout</button>
+            <p style="position:absolute;left: 5.5%;top: 60%;" id="namereg" class="namereg"></p>
+        </div>
+        <div class="homebody">
+            <button id="createtourney" class="createtourney">CREATE TOURNEY HERE!</button>
+            <dialog class="modalCreate" id="modalCreate">
+                <h1 style="text-align: center;">Create Your Tournament!</h1>
+                <label for="tname">Name of Tournament:</label>
+                <input type="text" id="tname" name="tname" class="tname" value=""></input>
+                <label for="gname">Name of Game:</label>
+                <input type="text" id="gname" name="gname" class="gname" value=""></input>
+                <label for="nump">Number of Players:</label>
+                <input type="text" id="nump" name="nump" class="nump" value=""></input>
+                <label for="gpwd">Password (blank if none):</label>
+                <input type="password" id="gpwd" name="gpwd" class="gpwd" value=""></input>
+                <label for="pbox">Public?</label>
+                <input type="checkbox" id="pbox" name="pbox" class="pbox" value="Public"></input>
+                <button class="closeCreate" id="closeCreate">Create!</button>
+            </dialog>
+            <button id="jointourney" class="jointourney">JOIN A TOURNEY!</button>
+        </div>
+        <div id="linkGlobalTables" class="linkGlobalTables"></div>
+        <div id="yourTables" class="yourTables"></div>
+    </div>
+    <!--Tournament Views?-->
+    <div data-page="template" id="page3">
+        <div id="main"></div>
+        <!--
+        <div class="toppart">
+            <h1 style="position: absolute;left:32%;top:25%">Tournament!</h1>
+        </div>
+        -->
+    </div>
+</body>
+
+</html>
