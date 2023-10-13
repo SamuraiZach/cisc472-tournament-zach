@@ -19,6 +19,9 @@
     <script defer src="/__/firebase/10.4.0/firebase-remote-config-compat.js"></script>
     <script defer src="/__/firebase/10.4.0/firebase-performance-compat.js"></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/hmac-sha512.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/sha256.js'></script>
+
 
     <!-- 
         initialize the SDK after all desired features are loaded, set useEmulator to false
@@ -104,6 +107,15 @@
             position: absolute;
             top: 20%;
             left: 1%;
+            width: 5%;
+            height: 50%;
+            visibility: visible;
+        }
+        
+        .homebutton {
+            position: absolute;
+            top: 20%;
+            left: 6%;
             width: 5%;
             height: 50%;
             visibility: visible;
@@ -339,30 +351,32 @@
                 $("#gname").val("");
                 $("#nump").val("");
                 $("#gpwd").val("");
+                //$("#pbox").val("");
                 modalCreate.showModal();
                 $("#closeCreate").click(() => {
                     const tourneyName = $("#tname").val();
                     const gamename = $("#gname").val();
                     const numplayers = $("#nump").val();
-                    const gamepwd = $("#gpwd").val();
+                    const gamepwd = CryptoJS.SHA512($("#gpwd").val()).toString();
+                    console.log(gamepwd);
+                    //var hashed = CryptoJS.SHA512($("#gpwd").val());
+                    //console.log(hashed);
+                    let pubox = $("#pbox:checked").val();
+                    //console.log(pubox);
+                    if (pubox) {
+                        console.log("Public touney");
+                        pubox = "Public";
+                    } else {
+                        console.log("Private touney");
+                        pubox = "Private";
+                    }
+                    console.log(pubox + " : pb");
                     const ownersArry = [user.displayName];
                     const ownerDisplayName = user.displayName;
                     const ownerEmail = user.email;
                     const playersArry = [""];
                     const matches = [""];
                     const joinableLink = ("https://cisc472-tourney.web.app/", "Tournament/"); // ,tourneyName, "/", gamename, "/", ownerDisplayName);
-                    let obj = {
-                        "TournamentName": tourneyName,
-                        "GameName": gamename,
-                        "NumPlayers": numplayers,
-                        "GamePassword": gamepwd,
-                        "Owners": ownersArry,
-                        "Players": playersArry,
-                        "Games": matches,
-                        "OwnerEmail": ownerEmail,
-                        "OwnerName": ownerDisplayName,
-                        "JoinableLink": joinableLink
-                    };
                     //then ajax stuff into game on firebase
                     const modalCreate = $("#modalCreate")[0];
                     console.log("pushed");
@@ -379,6 +393,7 @@
                         "OwnerName": ownerDisplayName,
                         "Started": 0,
                         "Joined": null,
+                        "Public": pubox,
                         id: newRef.key
                     });
                     modalCreate.close();
@@ -400,7 +415,10 @@
                     if (theTournament.OwnerName == user.displayName) {
                         $("#yourTables").append(`<a class="survey-wrap" href="/Tournament/${sID}"><h3 id="hyperLink">${theTournament.TournamentName}</h3></a>`);
                     }
-                    $("#linkGlobalTables").append(`<a class="survey-wrap" href="/Tournament/${sID}"><h3 id="hyperLink">${theTournament.TournamentName}</h3></a>`);
+                    console.log(theTournament.Public + " : public");
+                    if (theTournament.Public === "Public") {
+                        $("#linkGlobalTables").append(`<a class="survey-wrap" href="/Tournament/${sID}"><h3 id="hyperLink">${theTournament.TournamentName}</h3></a>`);
+                    }
                 });
 
             });
@@ -536,11 +554,11 @@
                 <label for="gname">Name of Game:</label>
                 <input type="text" id="gname" name="gname" class="gname" value=""></input>
                 <label for="nump">Number of Players:</label>
-                <input type="text" id="nump" name="nump" class="nump" value=""></input>
+                <input type="number" id="nump" name="nump" class="nump" min="1" max="100"></input>
                 <label for="gpwd">Password (blank if none):</label>
                 <input type="password" id="gpwd" name="gpwd" class="gpwd" value=""></input>
                 <label for="pbox">Public?</label>
-                <input type="checkbox" id="pbox" name="pbox" class="pbox" value="Public"></input>
+                <input type="checkbox" id="pbox" name="pbox" class="pbox"></input>
                 <button class="closeCreate" id="closeCreate">Create!</button>
             </dialog>
             <button id="jointourney" class="jointourney">JOIN A TOURNEY!</button>
@@ -551,10 +569,11 @@
         //showNextPage();
         let renderTournament = (sID, user) => {
             console.log("rendering for: " + sID);
+            //let brackets = new Array();
             $("#main").html("");
             firebase.database().ref(`/Tournament`).child(sID).on("value", ss => {
                 let theTournament = ss.val();
-                $("#main").append(`<div id="toppart" class="toppart"><h1 id="tourneyName"style="position: absolute;left:35%;top:25%">WELCOME TO THE </h1><p style="position:absolute;left: 1%;top: 60%;" id="da">Username:</p><button id="logoutbutton" class="logoutbutton">Logout</button><p style="position:absolute;left: 5.5%;top: 60%;" id="namereg" class="namereg"></p></div><div class="homebody"><h1 id="introbody" class="introbody"></h1></div>`);
+                $("#main").append(`<div id="toppart" class="toppart"><button id="homebutton" class="homebutton">HOME</button><h1 id="tourneyName"style="position: absolute;left:35%;top:25%">WELCOME TO THE </h1><p style="position:absolute;left: 1%;top: 60%;" id="da">Username:</p><button id="logoutbutton" class="logoutbutton">Logout</button><p style="position:absolute;left: 5.5%;top: 60%;" id="namereg" class="namereg"></p></div><div class="homebody"><h1 id="introbody" class="introbody"></h1></div>`);
                 $("#namereg").text(username);
                 console.log("Tournment Name: ", theTournament.TournamentName);
                 $("#tourneyName").text("WELCOME TO " + theTournament.TournamentName);
@@ -588,7 +607,7 @@
                     //let testtt = aa.val();
                     //stringPlayers += (Object.keys(testtt));
                     //console.log(Object.keys(testtt || {})[0]., "::::");
-                    console.log(testtt[0]);
+                    //console.log(testtt[0]);
                 });
                 /*for (let i = 0; i < Object.keys(theTournament.Players || {}).length; i++) {
                     console.log(theTournament.Players[i] + " DAAAAAA");
@@ -596,14 +615,17 @@
                     stringPlayers = (stringPlayers + "\n" + theTournament.Players[i]);
                 };*/
                 //console.log(stringPlayers + "       D");
+
                 $("#playerList").text(stringPlayers);
+                let PlayersArray = stringPlayers.split(",\n");
+                console.log(PlayersArray);
                 let vote = -1;
                 if (theTournament.Started == 0) {
                     $("#status").text("Waiting...");
                     $("#introbody").html("");
                     if (theTournament.OwnerEmail == user.email) {
                         console.log("owner view");
-                        $("#introbody").append(`<button id="startbutton">START</button>`);
+                        $("#introbody").append(`<button id="startbutton">START</button><button id="startbutton">INVITE BUTTON</button>`);
                     } else {
                         console.log("player view");
                         $("#introbody").append(`<button id="joinbutton">JOIN</button>`);
@@ -640,7 +662,14 @@
                 });
                 $("#startbutton").on("click", () => {
                     console.log("Start");
+                    firebase.database().ref("/Tournament").child(sID).child("Started").set(1);
+                    //theTournament.Started = 1;
                     renderTournament(sID, user);
+                });
+                $("#homebutton").on("click", () => {
+                    pn = "https://cisc472-tournament-zach.web.app/";
+                    window.location.href = 'http://127.0.0.1:5000/'; //change link to https://cisc472-tournament-zach.web.app/ when deploy
+                    routeToPage(["https://cisc472-tournament-zach.web.app"], loggedInPerson);
                 });
                 //firebase.database().ref("/Tournament").child(sID).child("Players").push(loggedInPerson.displayName);
                 console.log(theTournament.players);
