@@ -9,12 +9,12 @@ var password = " ";
 var email = " ";
 var signtype = "";
 let loggedInPerson = false;
-console.log(currentPageIndex);
+/*console.log(currentPageIndex);
 var showNextPage = function() {
     currentPageIndex = (currentPageIndex + 1) % pages.length;
     console.log("page index = ", currentPageIndex)
     var template = document.getElementById(pages[currentPageIndex]).innerHTML;
-    //do stuff to template here
+    
     display.innerHTML = template;
     if (currentPageIndex == 2) {
         renderTournament();
@@ -25,11 +25,11 @@ var showPreviousPage = function() {
     currentPageIndex = (currentPageIndex - 1) % pages.length;
     console.log("page index = ", currentPageIndex)
     var template = document.getElementById(pages[currentPageIndex]).innerHTML;
-    //do stuff to template here
+    
 
     display.innerHTML = template;
 
-};
+};*/
 
 /*
 firebase.auth().onAuthStateChanged(user => {
@@ -66,10 +66,13 @@ firebase.auth().onAuthStateChanged(user => {
 
 };*/
 let renderLogin = () => {
+    loginHTML();
     /*var google_provider = new firebase.auth.GoogleAuthProvider();
     google_provider.setCustomParameters({ prompt: 'select_account' });*/
     var google_provider = new firebase.auth.GoogleAuthProvider();
-    google_provider.setCustomParameters({ prompt: 'select_account' });
+    google_provider.setCustomParameters({
+        prompt: 'select_account'
+    });
     console.log("entered");
     console.log($("#logbutton")[0]);
     $("#logbutton").on("click", () => {
@@ -122,7 +125,9 @@ let renderLogin = () => {
             firebase.auth().createUserWithEmailAndPassword(email, password).then((userCredentials) => {
                 var pp = userCredentials.user;
                 console.log(pp.displayName, " dd");
-                user.updateProfile({ displayName: username.toString() }).then(function() {
+                user.updateProfile({
+                        displayName: username.toString()
+                    }).then(function() {
                         console.log(user.displayName, " inside 2");
                     })
                     .catch(function(error) {
@@ -139,9 +144,12 @@ let renderLogin = () => {
 
 };
 let startApp = (user) => {
+    homeHTML();
     console.log(user.email + ": startApp Email");
     if (signtype === "free" && user.displayName == null) {
-        user.updateProfile({ displayName: username });
+        user.updateProfile({
+            displayName: username
+        });
     }
     console.log("hi");
     console.log(user.displayName + ": udispo");
@@ -226,15 +234,16 @@ let routeToPage = (parts, user) => {
     //addLogout();
     console.log(parts.length);
     if (parts.length < 3) {
-        showNextPage();
+        //showNextPage();
         startApp(user);
     } else {
         if (parts[1] == "Tournament" && parts[2].length > 1) {
             //renderSurvey(parts[2]);
+            renderTournament(parts[2]);
             console.log("teehee");
         } else {
             alert("Tournament Doesnt Exist / Invalid Link");
-            showNextPage();
+            //showNextPage();
             startApp(user);
         }
     }
@@ -242,8 +251,13 @@ let routeToPage = (parts, user) => {
 /*var google_provider = new firebase.auth.GoogleAuthProvider();
 google_provider.setCustomParameters({ prompt: 'select_account' });*/
 document.addEventListener('DOMContentLoaded', function() {
+    console.log("render page");
     let pn = document.location.pathname;
+    console.log(pn);
     let URLparts = pn.split("/");
+    if (URLparts.length == 3) {
+        console.log(URLparts[1], "--------", URLparts[2]);
+    }
 
     firebase.auth().onAuthStateChanged(user => {
         if (!!user) {
@@ -252,7 +266,9 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log(signtype, ": sty ", username, " : uname");
             if (signtype === "free" && user.displayName == null) {
                 console.log("enter HERE!");
-                user.updateProfile({ displayName: username.toString() }).then(function() {
+                user.updateProfile({
+                        displayName: username.toString()
+                    }).then(function() {
                         console.log(user.displayName, " inside 1");
                     })
                     .catch(function(error) {
@@ -269,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function() {
             //startApp(user);
         } else {
             if (currentPageIndex == 1) {
-                showPreviousPage();
+                loginHTML();
             }
             loggedInPerson = false;
             console.log(user + " : initial null user") //////////////////////////////////////////////////////////////
@@ -280,15 +296,82 @@ document.addEventListener('DOMContentLoaded', function() {
     //Expecting /tourney/:uidhere
     /*
     firebase.auth().onAuthStateChanged(user => {
-      if (!!user){
+        if (!!user){
         loggedInPerson = user;
         routeToPage(URLparts);
-      } else {
+        } else {
         loggedInPerson = false;
         $("#logout-wrap").remove();
         renderLogin();
-      }
+        }
     });*/
     console.log("SPLIT!");
 });
-showNextPage();
+
+let loginHTML = () => {
+    $("#main").html("");
+    $("#main").append(`<div class="toppart">
+    <h1 style="position: absolute;left:32%;top:25%">WELCOME TO THE TOURNAMENT SITE!</h1>
+    <button id="logbutton" class="logbutton">Log In! Google</button>
+    <button id="logbuttonDB" class="logbuttonDB">Log In!</button>
+    <dialog class="logReg" id="logReg">
+        <h1 style="text-align: center;">Welcome!</h1>
+        <label for="fnameL">Username:</label>
+        <input type="text" id="fnameL" name="fnameL" class="fnameL" value=""></input>
+        <label for="pwdL">Password:</label>
+        <input type="password" id="pwdL" name="pwdL" class="pwdL" value=""></input>
+        <label for="emailL">Email:</label>
+        <input type="email" id="emailL" name="emailL" class="emailL" value=""></input>
+        <button class="closeLog" id="closeLog">Submit</button>
+    </dialog>
+    <button id="registerbutton" class="registerbutton">Register Here!</button>
+    <dialog class="modalReg" id="modalReg">
+        <h1 style="text-align: center;">Welcome!</h1>
+        <label for="fnameR">Username:</label>
+        <input type="text" id="fnameR" name="fnameR" class="fnameR" value=""></input>
+        <label for="pwdR">Password:</label>
+        <input type="password" id="pwdR" name="pwdR" class="pwdR" value=""></input>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" class="email" value=""></input>
+        <button class="closeReg" id="closeReg">Submit</button>
+    </dialog>
+    <button id="helpbutton" class="helpbutton">Need Help?</button>
+    <p style="position:absolute;left: 1%;top: 60%;" id="da">Username:</p>
+</div>
+<div class="homebody">
+    <h1 id="introbody" class="introbody">Welcome to the tournament! Please sign in above to get started!</h1>
+</div>`);
+};
+let homeHTML = () => {
+    $("#main").html("");
+    $("#main").append(`<div class="toppart">
+    <h1 style="position: absolute;left:32%;top:25%">WELCOME TO THE TOURNAMENT SITE!</h1>
+    <p style="position:absolute;left: 1%;top: 60%;" id="da">Username:</p>
+    <button id="logoutbutton" class="logoutbutton">Logout</button>
+    <p style="position:absolute;left: 5.5%;top: 60%;" id="namereg" class="namereg"></p>
+</div>
+<div class="homebody">
+    <button id="createtourney" class="createtourney">CREATE TOURNEY HERE!</button>
+    <dialog class="modalCreate" id="modalCreate">
+        <h1 style="text-align: center;">Create Your Tournament!</h1>
+        <label for="tname">Name of Tournament:</label>
+        <input type="text" id="tname" name="tname" class="tname" value=""></input>
+        <label for="gname">Name of Game:</label>
+        <input type="text" id="gname" name="gname" class="gname" value=""></input>
+        <label for="nump">Number of Players:</label>
+        <input type="text" id="nump" name="nump" class="nump" value=""></input>
+        <label for="gpwd">Password (blank if none):</label>
+        <input type="password" id="gpwd" name="gpwd" class="gpwd" value=""></input>
+        <label for="pbox">Public?</label>
+        <input type="checkbox" id="pbox" name="pbox" class="pbox" value="Public"></input>
+        <button class="closeCreate" id="closeCreate">Create!</button>
+    </dialog>
+    <button id="jointourney" class="jointourney">JOIN A TOURNEY!</button>
+</div>
+<div id="linkGlobalTables" class="linkGlobalTables"></div>
+<div id="yourTables" class="yourTables"></div>`);
+};
+let renderTournament = (sID) => {
+    $("#main").html("");
+};
+//showNextPage();

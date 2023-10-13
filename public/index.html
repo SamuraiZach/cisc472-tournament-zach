@@ -21,29 +21,472 @@
     <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js'></script>
 
     <!-- 
-      initialize the SDK after all desired features are loaded, set useEmulator to false
-      to avoid connecting the SDK to running emulators.
-    -->
+        initialize the SDK after all desired features are loaded, set useEmulator to false
+        to avoid connecting the SDK to running emulators.
+        -->
     <script defer src="/__/firebase/init.js?useEmulator=true"></script>
-    <script defer src="./source.js"></script>
+    <style media="screen">
+        .toppart {
+            background-color: #8BC5CD;
+            position: absolute;
+            top: 0%;
+            left: 0%;
+            width: 100%;
+            height: 16%;
+        }
+        
+        .linkGlobalTables {
+            background-color: #297282;
+            position: absolute;
+            top: 16%;
+            left: 0%;
+            width: 10%;
+            height: 84%;
+            overflow-y: auto;
+        }
+        
+        .playerNames {
+            background-color: #297282;
+            position: absolute;
+            top: 16%;
+            left: 0%;
+            width: 15%;
+            height: 84%;
+            overflow-y: auto;
+        }
+        
+        .yourTables {
+            background-color: #E6AC5A;
+            position: absolute;
+            top: 16%;
+            left: 10%;
+            width: 10%;
+            height: 84%;
+            overflow-y: auto;
+        }
+        
+        .hyperLink {
+            position: absolute;
+        }
+        
+        .homebody {
+            position: absolute;
+            left: 0%;
+            top: 16%;
+            width: 100%;
+            height: 84%;
+            background-color: #FFE69C;
+        }
+        
+        .introbody {
+            position: absolute;
+            left: 25%;
+            top: 25%;
+            text-align: center;
+            visibility: visible;
+        }
+        
+        .hometitle {
+            text-align: center;
+            position: relative;
+        }
+        
+        .logbutton {
+            position: absolute;
+            top: 20%;
+            left: 1%;
+            width: 5%;
+            height: 50%;
+            visibility: visible;
+        }
+        
+        .logoutbutton {
+            position: absolute;
+            top: 20%;
+            left: 1%;
+            width: 5%;
+            height: 50%;
+            visibility: visible;
+        }
+        
+        .helpbutton {
+            position: absolute;
+            top: 20%;
+            left: 80%;
+            width: 5%;
+            height: 50%;
+            visibility: visible;
+        }
+        
+        .logoutbuttonT {
+            position: absolute;
+            top: 10%;
+            left: 1%;
+            width: 5%;
+            height: 50%;
+            visibility: hidden;
+        }
+        
+        .registerbutton {
+            position: absolute;
+            top: 20%;
+            left: 11%;
+            width: 5%;
+            height: 50%;
+            visibility: visible;
+        }
+        
+        .logbuttonDB {
+            position: absolute;
+            top: 20%;
+            left: 6%;
+            width: 5%;
+            height: 50%;
+            visibility: visible;
+        }
+        
+        .createtourney {
+            position: absolute;
+            top: 35%;
+            left: 30%;
+            width: 20%;
+            height: 30%;
+            visibility: visible;
+            font-size: xx-large;
+        }
+        
+        .jointourney {
+            position: absolute;
+            top: 35%;
+            left: 60%;
+            width: 20%;
+            height: 30%;
+            visibility: visible;
+            font-size: xx-large;
+        }
+    </style>
+    <!--<script defer src="./source.js"></script>-->
 
 </head>
 
 <body>
-    <!--Get started click anywhere page-->
-    <div data-page="content" id="display">
-        <!---
-        <div class="toppart">
-            <h1 style="position: absolute;left:32%;top:25%">WELCOME TO THE TOURNAMENT SITE!</h1>
-        </div>
-        <div class="homebody">
-            <p>Click anywhere to get started!</p>
-            <button id="btn" class="btn">clickhere</button>
-        </div>--->
-    </div>
-    <!--Login Page / Signed out-->
-    <div data-page="template" id="page1">
-        <div class="toppart">
+    <div id="main"></div>
+    <script>
+        //create pushes table 
+        /*var google_provider = new firebase.auth.GoogleAuthProvider();
+        google_provider.setCustomParameters({ prompt: 'select_account' });*/
+        var pages = ['page1', 'page2', 'page3'];
+        var currentPageIndex = -1;
+        console.log(currentPageIndex + " top of js");
+        var username = " "; //document.querySelector('.namereg'); same as user.displayName
+        var password = " ";
+        var email = " ";
+        var signtype = "";
+        let loggedInPerson = false;
+        /*console.log(currentPageIndex);
+        var showNextPage = function() {
+            currentPageIndex = (currentPageIndex + 1) % pages.length;
+            console.log("page index = ", currentPageIndex)
+            var template = document.getElementById(pages[currentPageIndex]).innerHTML;
+            
+            display.innerHTML = template;
+            if (currentPageIndex == 2) {
+                renderTournament();
+                console.log("populate? full html means to use AJAX and pull stuff from DB about it");
+            }
+        };
+        var showPreviousPage = function() {
+            currentPageIndex = (currentPageIndex - 1) % pages.length;
+            console.log("page index = ", currentPageIndex)
+            var template = document.getElementById(pages[currentPageIndex]).innerHTML;
+            
+        
+            display.innerHTML = template;
+        
+        };*/
+
+        /*
+        firebase.auth().onAuthStateChanged(user => {
+            if (!!user) {
+                //currentPageIndex = 0;
+                console.log(signtype, ": sty ", username, " : uname");
+                if (signtype === "free" && user.displayName == null) {
+                    console.log("enter HERE!");
+                    user.updateProfile({ displayName: username.toString() }).then(function() {
+                            console.log(user.displayName, " inside 1");
+                        })
+                        .catch(function(error) {
+                            console.log("error");
+                        });
+                    console.log(user.displayName, " after catch");
+                } else {
+                    username = user.displayName;
+                }
+                showNextPage();
+                console.log(user + " : after sign in") ///////////////////////////////////////////////////////////////////
+                console.log("after login");
+                startApp(user);
+            } else {
+                if (currentPageIndex == 1) {
+                    showPreviousPage();
+                }
+                console.log(user + " : initial null user") //////////////////////////////////////////////////////////////
+                console.log("First AUTH");
+                renderLogin();
+            }
+        });
+        */
+        /*let renderTournament = () => {
+        
+        };*/
+        let renderLogin = () => {
+            loginHTML();
+            /*var google_provider = new firebase.auth.GoogleAuthProvider();
+            google_provider.setCustomParameters({ prompt: 'select_account' });*/
+            var google_provider = new firebase.auth.GoogleAuthProvider();
+            google_provider.setCustomParameters({
+                prompt: 'select_account'
+            });
+            console.log("entered");
+            console.log($("#logbutton")[0]);
+            $("#logbutton").on("click", () => {
+                firebase.auth().signInWithRedirect(google_provider);
+                //const tryF = firebase.auth().currentUser;
+                //console.log(tryF.displayName, " test");
+                //showNextPage();
+            });
+            $("#logbuttonDB").on("click", () => {
+                const logReg = $("#logReg")[0];
+                $("#fnameL").val("");
+                $("#pwdL").val("");
+                $("#emailL").val("");
+                logReg.showModal();
+                $("#closeLog").click(() => {
+                    const logReg = $("#logReg")[0];
+                    password = $("#pwdL").val();
+                    email = $("#emailL").val();;
+                    firebase.auth().signInWithEmailAndPassword(email, password).then((userCredential) => {
+                            username = $("#fnameL").val();
+                            // Signed in
+                            var user = userCredential.user;
+                            // ...
+                        })
+                        .catch((error) => {
+                            var errorMessage = error.message;
+                            alert(errorMessage);
+                        });
+                    logReg.close();
+                });
+            });
+            $("#registerbutton").on("click", () => {
+                const modalReg = $("#modalReg")[0];
+                $("#fnameR").val("");
+                $("#pwdR").val("");
+                $("#email").val("");
+                modalReg.showModal();
+                $("#closeReg").click(() => {
+                    console.log("reach");
+                    const modalReg = $("#modalReg")[0];
+                    username = $("#fnameR").val();
+                    password = $("#pwdR").val();
+                    email = $("#email").val();;
+                    let obj = {
+                        "Username": username,
+                        "Password": password,
+                        "Email": email
+                    };
+                    modalReg.close();
+                    firebase.auth().createUserWithEmailAndPassword(email, password).then((userCredentials) => {
+                        var pp = userCredentials.user;
+                        console.log(pp.displayName, " dd");
+                        user.updateProfile({
+                                displayName: username.toString()
+                            }).then(function() {
+                                console.log(user.displayName, " inside 2");
+                            })
+                            .catch(function(error) {
+                                console.log("error");
+                            });
+                        console.log(user.displayName, " after catch");
+
+                    });
+                    console.log("teehee");
+                    signtype = "free";
+                    console.log(signtype);
+                });
+            });
+
+        };
+        let startApp = (user) => {
+            homeHTML();
+            console.log(user.email + ": startApp Email");
+            if (signtype === "free" && user.displayName == null) {
+                user.updateProfile({
+                    displayName: username
+                });
+            }
+            console.log("hi");
+            console.log(user.displayName + ": udispo");
+            console.log(username + ": uddddd");
+            $("#namereg").text(username);
+            $("#logoutbutton").on("click", () => {
+                firebase.auth().signOut();
+            });
+            $("#createtourney").on("click", () => {
+                const modalCreate = $("#modalCreate")[0];
+                $("#tname").val("");
+                $("#gname").val("");
+                $("#nump").val("");
+                $("#gpwd").val("");
+                modalCreate.showModal();
+                $("#closeCreate").click(() => {
+                    const tourneyName = $("#tname").val();
+                    const gamename = $("#gname").val();
+                    const numplayers = $("#nump").val();
+                    const gamepwd = $("#gpwd").val();
+                    const ownersArry = [user.displayName];
+                    const ownerDisplayName = user.displayName;
+                    const ownerEmail = user.email;
+                    const playersArry = [""];
+                    const matches = [""];
+                    const joinableLink = ("https://cisc472-tourney.web.app/", "Tournament/"); // ,tourneyName, "/", gamename, "/", ownerDisplayName);
+                    let obj = {
+                        "TournamentName": tourneyName,
+                        "GameName": gamename,
+                        "NumPlayers": numplayers,
+                        "GamePassword": gamepwd,
+                        "Owners": ownersArry,
+                        "Players": playersArry,
+                        "Games": matches,
+                        "OwnerEmail": ownerEmail,
+                        "OwnerName": ownerDisplayName,
+                        "JoinableLink": joinableLink
+                    };
+                    //then ajax stuff into game on firebase
+                    const modalCreate = $("#modalCreate")[0];
+                    console.log("pushed");
+                    let newRef = firebase.database().ref("/Tournament").push();
+                    newRef.set({
+                        "TournamentName": tourneyName,
+                        "GameName": gamename,
+                        "NumPlayers": numplayers,
+                        "GamePassword": gamepwd,
+                        "Owners": ownersArry,
+                        "Players": null,
+                        "Games": matches,
+                        "OwnerEmail": ownerEmail,
+                        "OwnerName": ownerDisplayName,
+                        "Started": 0,
+                        "Joined": null,
+                        id: newRef.key
+                    });
+                    modalCreate.close();
+                    //showNextPage();
+                });
+                //console.log("redering");
+                //firebase.database().ref("/surveys").on("value", ss => {});
+
+            });
+            console.log("redering");
+            firebase.database().ref("/Tournament").on("value", ss => {
+                $("#linkGlobalTables").html("");
+                $("#yourTables").html("");
+                $("#linkGlobalTables").append(`<h3>Global Tables</h3>`)
+                $("#yourTables").append(`<h3>Your Tables</h3>`)
+                let allTournaments = ss.val() || {};
+                Object.keys(allTournaments).map(sID => {
+                    let theTournament = allTournaments[sID];
+                    if (theTournament.OwnerName == user.displayName) {
+                        $("#yourTables").append(`<a class="survey-wrap" href="/Tournament/${sID}"><h3 id="hyperLink">${theTournament.TournamentName}</h3></a>`);
+                    }
+                    $("#linkGlobalTables").append(`<a class="survey-wrap" href="/Tournament/${sID}"><h3 id="hyperLink">${theTournament.TournamentName}</h3></a>`);
+                });
+
+            });
+
+
+        };
+        let routeToPage = (parts, user) => {
+            //addLogout();
+            console.log(parts.length);
+            if (parts.length < 3) {
+                //showNextPage();
+                startApp(user);
+            } else {
+                if (parts[1] == "Tournament" && parts[2].length > 1) {
+                    //renderSurvey(parts[2]);
+                    renderTournament(parts[2], user);
+                    console.log("teehee");
+                } else {
+                    alert("Tournament Doesnt Exist / Invalid Link");
+                    //showNextPage();
+                    startApp(user);
+                }
+            }
+        };
+        /*var google_provider = new firebase.auth.GoogleAuthProvider();
+        google_provider.setCustomParameters({ prompt: 'select_account' });*/
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("render page");
+            let pn = document.location.pathname;
+            console.log(pn);
+            let URLparts = pn.split("/");
+            if (URLparts.length == 3) {
+                console.log(URLparts[1], "--------", URLparts[2]);
+            }
+
+            firebase.auth().onAuthStateChanged(user => {
+                if (!!user) {
+                    //currentPageIndex = 0;
+                    loggedInPerson = user;
+                    console.log(signtype, ": sty ", username, " : uname");
+                    if (signtype === "free" && user.displayName == null) {
+                        console.log("enter HERE!");
+                        user.updateProfile({
+                                displayName: username.toString()
+                            }).then(function() {
+                                console.log(user.displayName, " inside 1");
+                            })
+                            .catch(function(error) {
+                                console.log("error");
+                            });
+                        console.log(user.displayName, " after catch");
+                    } else {
+                        username = user.displayName;
+                    }
+                    //showNextPage();
+                    console.log(user + " : after sign in") ///////////////////////////////////////////////////////////////////
+                    console.log("after login");
+                    routeToPage(URLparts, user);
+                    //startApp(user);
+                } else {
+                    if (currentPageIndex == 1) {
+                        loginHTML();
+                    }
+                    loggedInPerson = false;
+                    console.log(user + " : initial null user") //////////////////////////////////////////////////////////////
+                    console.log("First AUTH");
+                    renderLogin();
+                }
+            });
+            //Expecting /tourney/:uidhere
+            /*
+            firebase.auth().onAuthStateChanged(user => {
+              if (!!user){
+                loggedInPerson = user;
+                routeToPage(URLparts);
+              } else {
+                loggedInPerson = false;
+                $("#logout-wrap").remove();
+                renderLogin();
+              }
+            });*/
+            console.log("SPLIT!");
+        });
+
+        let loginHTML = () => {
+            $("#main").html("");
+            $("#main").append(`<div class="toppart">
             <h1 style="position: absolute;left:32%;top:25%">WELCOME TO THE TOURNAMENT SITE!</h1>
             <button id="logbutton" class="logbutton">Log In! Google</button>
             <button id="logbuttonDB" class="logbuttonDB">Log In!</button>
@@ -73,11 +516,11 @@
         </div>
         <div class="homebody">
             <h1 id="introbody" class="introbody">Welcome to the tournament! Please sign in above to get started!</h1>
-        </div>
-    </div>
-    <!--Logged In-->
-    <div data-page="template" id="page2">
-        <div class="toppart">
+        </div>`);
+        };
+        let homeHTML = () => {
+            $("#main").html("");
+            $("#main").append(`<div class="toppart">
             <h1 style="position: absolute;left:32%;top:25%">WELCOME TO THE TOURNAMENT SITE!</h1>
             <p style="position:absolute;left: 1%;top: 60%;" id="da">Username:</p>
             <button id="logoutbutton" class="logoutbutton">Logout</button>
@@ -102,17 +545,107 @@
             <button id="jointourney" class="jointourney">JOIN A TOURNEY!</button>
         </div>
         <div id="linkGlobalTables" class="linkGlobalTables"></div>
-        <div id="yourTables" class="yourTables"></div>
-    </div>
-    <!--Tournament Views?-->
-    <div data-page="template" id="page3">
-        <div id="main"></div>
-        <!--
-        <div class="toppart">
-            <h1 style="position: absolute;left:32%;top:25%">Tournament!</h1>
-        </div>
-        -->
-    </div>
+        <div id="yourTables" class="yourTables"></div>`);
+        };
+        //showNextPage();
+        let renderTournament = (sID, user) => {
+            console.log("rendering for: " + sID);
+            $("#main").html("");
+            firebase.database().ref(`/Tournament`).child(sID).on("value", ss => {
+                let theTournament = ss.val();
+                $("#main").append(`<div id="toppart" class="toppart"><h1 id="tourneyName"style="position: absolute;left:35%;top:25%">WELCOME TO THE </h1><p style="position:absolute;left: 1%;top: 60%;" id="da">Username:</p><button id="logoutbutton" class="logoutbutton">Logout</button><p style="position:absolute;left: 5.5%;top: 60%;" id="namereg" class="namereg"></p></div><div class="homebody"><h1 id="introbody" class="introbody"></h1></div>`);
+                $("#namereg").text(username);
+                console.log("Tournment Name: ", theTournament.TournamentName);
+                $("#tourneyName").text("WELCOME TO " + theTournament.TournamentName);
+                $("#toppart").append(`<h3 id="gameName"style="position: absolute;left:45%;top:50%"></h3>`);
+                $("#gameName").text("GAME: " + theTournament.GameName);
+                console.log(theTournament.Started);
+                console.log(theTournament.OwnerEmail, " : ", user.email);
+                $("#main").append(`<div id="playerNames" class="playerNames"><h1>Status:</h1><h1 id="status"></h1><h1>MAX Players:</h1><h1 id="maxPlayers"></h1><h1>Current:</h1><h1 id="current"></h1><h1>Players:</h1><h1 id="playerList"></h1></div>`);
+                $("#maxPlayers").text(theTournament.NumPlayers);
+                $("#current").text(Object.keys(theTournament.Players || {}).length);
+                console.log(Object.keys(theTournament.Players || {})[0], "::::");
+                let stringPlayers = "";
+                console.log(loggedInPerson.displayName + " DDD");
+                firebase.database().ref("/Tournament").child(sID).child("Players").on("value", aa => {
+                    let testtt = aa.val();
+                    for (let i = 0; i < Object.keys(theTournament.Players || {}).length; i++) {
+                        //stringPlayers += (firebase.database().ref("/Tournament").child(sID).child("Players").child(Object.keys(testtt || {})[i]).getKey() + "\n");
+                        console.log(Object.keys(testtt || {})[i], " : i");
+                        firebase.database().ref("/Tournament").child(sID).child("Players").child(Object.keys(testtt || {})[i]).on("value", dd => {
+                            let la = dd.val();
+                            if (i == Object.keys(theTournament.Players || {}).length - 1) {
+                                stringPlayers += (la + "\n");
+                            } else {
+                                stringPlayers += (la + ",\n");
+                            }
+
+                            console.log(la + " :wft");
+                        });
+                    };
+                    //stringPlayers += firebase.database().ref("/Tournament").child(sID).child("Players").child(Object.keys(testtt)).getKey();
+                    //let testtt = aa.val();
+                    //stringPlayers += (Object.keys(testtt));
+                    //console.log(Object.keys(testtt || {})[0]., "::::");
+                    console.log(testtt[0]);
+                });
+                /*for (let i = 0; i < Object.keys(theTournament.Players || {}).length; i++) {
+                    console.log(theTournament.Players[i] + " DAAAAAA");
+                    console.log(stringPlayers + "D");
+                    stringPlayers = (stringPlayers + "\n" + theTournament.Players[i]);
+                };*/
+                //console.log(stringPlayers + "       D");
+                $("#playerList").text(stringPlayers);
+                let vote = -1;
+                if (theTournament.Started == 0) {
+                    $("#status").text("Waiting...");
+                    $("#introbody").html("");
+                    if (theTournament.OwnerEmail == user.email) {
+                        console.log("owner view");
+                        $("#introbody").append(`<button id="startbutton">START</button>`);
+                    } else {
+                        console.log("player view");
+                        $("#introbody").append(`<button id="joinbutton">JOIN</button>`);
+                    }
+                } else {
+                    $("#status").text("Ongoing");
+                    $("#introbody").html("");
+                    $("#introbody").append(``);
+                }
+                $("#logoutbutton").on("click", () => {
+                    firebase.auth().signOut();
+                });
+                if ((theTournament.Joined || {}).hasOwnProperty(loggedInPerson.uid)) {
+                    vote = 0;
+                }
+                if (Object.keys(theTournament.Players || {}).length >= theTournament.NumPlayers) {
+                    vote = 1;
+                }
+                $("#joinbutton").on("click", () => {
+                    console.log("Joined");
+                    if (vote == 0) {
+                        alert("Already joined this tournament, please wait for it to start.");
+                        return;
+                    }
+                    if (vote == 1) {
+                        alert("This tournament is full!.");
+                        return;
+                    }
+                    firebase.database().ref("/Tournament").child(sID).child("Joined").child(loggedInPerson.uid).set(true);
+                    //theTournament.Players.push(loggedInPerson.displayName);
+                    firebase.database().ref("/Tournament").child(sID).child("Players").child(loggedInPerson.uid).set(loggedInPerson.displayName);
+                    console.log(firebase.database().ref("/Tournament").child(sID).child("Players").child(loggedInPerson.uid).child(loggedInPerson.displayName).getKey() + ": uidLol");
+                    renderTournament(sID, user);
+                });
+                $("#startbutton").on("click", () => {
+                    console.log("Start");
+                    renderTournament(sID, user);
+                });
+                //firebase.database().ref("/Tournament").child(sID).child("Players").push(loggedInPerson.displayName);
+                console.log(theTournament.players);
+            });
+        };
+    </script>
 </body>
 
 </html>
