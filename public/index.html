@@ -79,6 +79,7 @@
             width: 100%;
             height: 84%;
             background-color: #FFE69C;
+            overflow-x: auto;
         }
         
         .introbody {
@@ -502,7 +503,6 @@
             });*/
             console.log("SPLIT!");
         });
-
         let loginHTML = () => {
             $("#main").html("");
             $("#main").append(`<div class="toppart">
@@ -567,7 +567,40 @@
         <div id="yourTables" class="yourTables"></div>`);
         };
         //showNextPage();
+
         let renderTournament = (sID, user) => {
+            firebase.database().ref("/Tournament").child(sID).on("value", gg => {
+                let found = false;
+                let preLiminary = gg.val();
+                if (preLiminary.OwnerEmail != user.email) {
+                    firebase.database().ref("/Tournament").child(sID).child("Players").on("value", qq => {
+                        let pLoop = qq.val();
+                        for (let i = 0; i < Object.keys(preLiminary.Players || {}).length; i++) {
+                            console.log(Object.keys(pLoop || {})[i], " : i");
+                            firebase.database().ref("/Tournament").child(sID).child("Players").child(Object.keys(pLoop || {})[i]).on("value", ll => {
+                                let hh = ll.val();
+                                console.log(hh + ":hh");
+                                if (user.displayName === hh) {
+                                    console.log("SCREAM! IM ALREADY IN");
+                                    found = true;
+                                }
+                            });
+                        };
+                    });
+                    if (found == false) {
+                        let promptPassword = prompt("What is the password for this tournament? (if blank just enter)");
+                        console.log(promptPassword + ":entered");
+                        promptPassword = CryptoJS.SHA512(promptPassword).toString();
+                        console.log(preLiminary.GamePassword + ":tbhas");
+                        if (promptPassword !== preLiminary.GamePassword) {
+                            alert("incorrect password sending home");
+                            pn = "https://cisc472-tournament-zach.web.app/";
+                            window.location.href = 'http://127.0.0.1:5000/'; //change link to https://cisc472-tournament-zach.web.app/ when deploy
+                            routeToPage(["https://cisc472-tournament-zach.web.app"], loggedInPerson);
+                        }
+                    }
+                }
+            });
             console.log("rendering for: " + sID);
             //let brackets = new Array();
             $("#main").html("");
@@ -590,12 +623,11 @@
                 firebase.database().ref("/Tournament").child(sID).child("Players").on("value", aa => {
                     let testtt = aa.val();
                     for (let i = 0; i < Object.keys(theTournament.Players || {}).length; i++) {
-                        //stringPlayers += (firebase.database().ref("/Tournament").child(sID).child("Players").child(Object.keys(testtt || {})[i]).getKey() + "\n");
                         console.log(Object.keys(testtt || {})[i], " : i");
                         firebase.database().ref("/Tournament").child(sID).child("Players").child(Object.keys(testtt || {})[i]).on("value", dd => {
                             let la = dd.val();
                             if (i == Object.keys(theTournament.Players || {}).length - 1) {
-                                stringPlayers += (la + "\n");
+                                stringPlayers += (la);
                             } else {
                                 stringPlayers += (la + ",\n");
                             }
@@ -603,11 +635,6 @@
                             console.log(la + " :wft");
                         });
                     };
-                    //stringPlayers += firebase.database().ref("/Tournament").child(sID).child("Players").child(Object.keys(testtt)).getKey();
-                    //let testtt = aa.val();
-                    //stringPlayers += (Object.keys(testtt));
-                    //console.log(Object.keys(testtt || {})[0]., "::::");
-                    //console.log(testtt[0]);
                 });
                 /*for (let i = 0; i < Object.keys(theTournament.Players || {}).length; i++) {
                     console.log(theTournament.Players[i] + " DAAAAAA");
@@ -632,8 +659,9 @@
                     }
                 } else {
                     $("#status").text("Ongoing");
-                    $("#introbody").html("");
-                    $("#introbody").append(``);
+                    $("#homebody").html("");
+                    $("#homebody").append(``);
+
                 }
                 $("#logoutbutton").on("click", () => {
                     firebase.auth().signOut();
