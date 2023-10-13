@@ -175,6 +175,7 @@
         //create pushes table 
         /*var google_provider = new firebase.auth.GoogleAuthProvider();
         google_provider.setCustomParameters({ prompt: 'select_account' });*/
+        var pn = "";
         var pages = ['page1', 'page2', 'page3'];
         var currentPageIndex = -1;
         console.log(currentPageIndex + " top of js");
@@ -428,7 +429,7 @@
         google_provider.setCustomParameters({ prompt: 'select_account' });*/
         document.addEventListener('DOMContentLoaded', function() {
             console.log("render page");
-            let pn = document.location.pathname;
+            pn = document.location.pathname;
             console.log(pn);
             let URLparts = pn.split("/");
             if (URLparts.length == 3) {
