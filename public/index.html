@@ -409,8 +409,10 @@
                         "Games": null,
                         "OwnerEmail": ownerEmail,
                         "OwnerName": ownerDisplayName,
+                        "Round": 1,
                         "Started": 0,
                         "Joined": null,
+                        "Won": false,
                         "Public": pubox,
                         id: newRef.key
                     });
@@ -627,6 +629,7 @@
             firebase.database().ref(`/Tournament`).child(sID).on("value", ss => {
                 let theTournament = ss.val();
                 $("#main").append(`<div id="toppart" class="toppart"><button id="homebutton" class="homebutton">HOME</button><h1 id="tourneyName"style="position: absolute;left:35%;top:25%">WELCOME TO THE </h1><p style="position:absolute;left: 1%;top: 60%;" id="da">Username:</p><button id="logoutbutton" class="logoutbutton">Logout</button><p style="position:absolute;left: 5.5%;top: 60%;" id="namereg" class="namereg"></p></div><div id="homebodyx" class="homebodyx"><h1 id="introbodyx" class="introbodyx"></h1></div>`);
+                console.log(username + " : d");
                 $("#namereg").text(username);
                 console.log("Tournment Name: ", theTournament.TournamentName);
                 $("#tourneyName").text("WELCOME TO " + theTournament.TournamentName);
@@ -665,7 +668,9 @@
 
                 $("#playerList").text(stringPlayers);
                 //PlayersArray goes from OVERALL TOURNAMENT -> Round -> Dual via arrays
-                let PlayersArray = [
+                console.log(theTournament.Games);
+                //console.log(bbArry);
+                /*let PlayersArray = [
                     [
                         ["johny", "timer"],
                         ["ronald", "joo", ],
@@ -681,8 +686,8 @@
                     [
                         ["burna"]
                     ]
-                ]; //stringPlayers.split(",\n");
-                console.log(PlayersArray);
+                ];
+                console.log(PlayersArray);*/
                 let vote = -1;
                 if (theTournament.Started == 0) {
                     $("#status").text("Waiting...");
@@ -695,11 +700,37 @@
                         $("#introbodyx").append(`<button id="joinbutton">JOIN</button>`);
                     }
                 } else {
+                    let grabInit = "";
+                    let arrayRender = [];
+                    firebase.database().ref("/Tournament").child(sID).child("Games").on("value", jj => {
+                        let gameInit = jj.val();
+                        console.log(gameInit);
+                        console.log("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDd");
+                        for (let y = 0; y < Object.keys(theTournament.Games || {}).length; y++) {
+                            console.log(Object.keys(gameInit || {})[y], " : i");
+                            firebase.database().ref("/Tournament").child(sID).child("Games").child(Object.keys(gameInit || {})[y]).on("value", aa => {
+                                arrayRender = aa.val();
+                                console.log(arrayRender);
+                                console.log("XXXXXXXXXXXXXXXXXX");
+                                console.log(Object.keys(gameInit));
+                                grabInit = (Object.keys(gameInit)).toString();
+                                //console.log(TEst);
+                                //firebase.database().ref("/Tournament").child(sID).child("Games").child(TEst).push(bbArry);
+                            });
+                        }
+
+                        //firebase.database().ref("/Tournament").child(sID).child("Games").child(TEst).set(bbArry);
+                    });
+
                     $("#status").text("Ongoing");
+                    let RoundCheck = 1;
+                    firebase.database().ref("/Tournament").child(sID).child("Round").on("value", kk => {
+                        RoundCheck = kk.val();
+                    });
                     $("#introbodyx").html("");
                     //$("#introbody").append(``);
                     var more = document.getElementById("introbodyx");
-                    for (let i = 0; i < PlayersArray.length; i++) {
+                    for (let i = 0; i < arrayRender.length; i++) {
                         /*console.log(i + " : i");
                         $("#introbody").append(`<div class="` +
                             i + `"id="` +
@@ -708,19 +739,21 @@
                         let count = 0;
                         let playersCount = 0;
                         console.log("Round: " + i);
-                        for (let k = 0; k < PlayersArray[i].length; k++) {
+                        for (let k = 0; k < arrayRender[i].length; k++) {
                             console.log("Bracket: " + k);
-                            for (let r = 0; r < PlayersArray[i][k].length; r++) {
+                            for (let r = 0; r < arrayRender[i][k].length; r++) {
                                 if (count < 2) {
-                                    count += 1;
-                                    playersCount += 1;
-                                    console.log("Player: " + r);
-                                    console.log((((10 * playersCount) * (i + 1) * (k + r + 1))) + " : Top Position");
-                                    //positioning for the buttons overalap!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                                    $("#homebodyx").append(`<button style="position: absolute; top:` + (((5 * playersCount) * (i + 1) * (k + 1))) + `%;left:` + (16 * (i + 1)) + `%;width:5%">` + PlayersArray[i][k][r] + `</button>`);
+                                    if (arrayRender[i][k][r] != "undefined") {
+                                        count += 1;
+                                        playersCount += 1;
+                                        console.log("Player: " + r);
+                                        console.log((((5 * playersCount) * (i + 1))) + " : Top Position for ->" + arrayRender[i][k][r]);
+                                        //positioning for the buttons overalap!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                                        $("#homebodyx").append(`<button id="` + arrayRender[i][k][r] + " " + i + " " + k + " " + r + `"style="position: absolute; top:` + (((5 * playersCount) * (i + 1))) + `%;left:` + (16 * (i + 1)) + `%;width:5%">` + arrayRender[i][k][r] + `</button>`);
+                                    }
                                 } else {
                                     count = 0;
-                                    $("#homebodyx").append(`<h1 style="position: absolute; top:` + (((5 * playersCount) * (i + 1) * (k))) + `%;left:` + (16 * (i + 1)) + `%;width:5%">-------</h1>`);
+                                    $("#homebodyx").append(`<h1 style="position: absolute; top:` + (((5 * playersCount) * (i + 1))) + `%;left:` + (16 * (i + 1)) + `%;width:5%">-------</h1>`);
                                     //k--;
                                     r--;
                                 }
@@ -729,6 +762,122 @@
                             butt.innerHTML = PlayersArray[i][k];
                             more.appendChild(butt);*/
                         }
+                    }
+                    if (theTournament.OwnerEmail == user.email) {
+                        let bracketWinnersOrder = 0;
+                        let winners;
+                        let winnersBracket = [];
+                        let NumBracketsRound = arrayRender[(RoundCheck - 1)].length;
+                        console.log(NumBracketsRound + " : numbrperround");
+                        console.log("owner view");
+                        console.log(winners + "dd")
+                        $("#homebodyx").append(`<button id="SaveChanges"style="position: absolute; top:0%;left:16%;width:10%">Finish Round? (Save Changes)</button>`);
+                        $("#homebodyx").append(`<button id="ResetChanges"style="position: absolute; top:0%;left:26%;width:10%">Reset Round?</button>`);
+                        $("#homebodyx").append(`<h1 style="position: absolute; top:-3%;left:36%">Round ` + RoundCheck + ` Winners:</h1><h1 id="RoundWinners" style="position: absolute; top:-3%;left:52%"></h1>`);
+                        $("#RoundWinners").text(winners);
+                        $("button").click(function() {
+                            if (this.id !== "SaveChanges" && this.id !== "ResetChanges" && this.id !== "homebutton" && this.id !== "logoutbutton") {
+                                let splitID = this.id.split(" ");
+                                console.log(splitID);
+                                let buttonRoundValue = splitID[1];
+                                let buttonBracketValue = parseInt(splitID[2]);
+                                let buttonIndvValue = splitID[3];
+                                let buttonID = splitID[0];
+                                let found = false;
+                                console.log(buttonBracketValue + " : : " + bracketWinnersOrder);
+                                console.log("click");
+                                for (let u = 0; u < winnersBracket.length; u++) {
+                                    if (winnersBracket[u] === buttonID) {
+                                        found = true;
+                                        alert(buttonID + " has already won this round");
+                                        return;
+
+                                    } else if (winnersBracket[u] === arrayRender[buttonRoundValue][buttonBracketValue][0] || winnersBracket[u] === arrayRender[buttonRoundValue][buttonBracketValue][1]) {
+                                        alert("Someone has already won this round");
+                                        return;
+                                    } else if (buttonRoundValue != (RoundCheck - 1)) {
+                                        alert("Not current round");
+                                        return;
+                                    } else if ((bracketWinnersOrder + 2) !== (buttonBracketValue + 2)) { //dunno why doesnt work but logically should
+                                        alert("Submit wins in order");
+                                        return;
+                                    }
+                                }
+                                if (found == false) {
+                                    bracketWinnersOrder += 1;
+                                    winnersBracket.push(buttonID);
+                                }
+                                console.log(winnersBracket);
+
+                            }
+                            winners = winnersBracket.toString();
+                            $("#RoundWinners").text(winners);
+                        });
+                        $("#SaveChanges").on("click", () => {
+                            RoundCheck += 1;
+                            let stringD = "";
+                            let pushingArray = [];
+                            let indP = 0;
+                            console.log(NumBracketsRound + ": D");
+                            console.log(winnersBracket.length + ": L");
+                            winners = winnersBracket.toString();
+                            if (winnersBracket.length < NumBracketsRound) {
+                                alert((NumBracketsRound - winnersBracket.length) + " brackets have not been entered");
+                            } else {
+                                for (let e = 0; e < winnersBracket.length + 2; e++) {
+                                    if (indP == 0) {
+                                        console.log(winnersBracket[e]);
+                                        stringD += winnersBracket[e];
+                                        indP += 1;
+                                    } else if (indP == 1) {
+                                        console.log(winnersBracket[e]);
+                                        stringD += ("," + winnersBracket[e]);
+                                        indP += 1;
+                                    } else {
+                                        indP = 0;
+                                        console.log(stringD);
+                                        pushingArray.push(stringD.split(","));
+                                        stringD = "";
+                                        e--;
+                                    }
+                                };
+                                arrayRender.push(pushingArray);
+                                let TEst = "";
+                                firebase.database().ref("/Tournament").child(sID).child("Games").on("value", rr => {
+                                    let gameX = rr.val();
+                                    console.log(gameX);
+                                    console.log("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDd");
+                                    for (let g = 0; g < Object.keys(theTournament.Games || {}).length; g++) {
+                                        console.log(Object.keys(gameX || {})[g], " : i");
+                                        firebase.database().ref("/Tournament").child(sID).child("Games").child(Object.keys(gameX || {})[g]).on("value", ee => {
+                                            let beetttu = ee.val();
+                                            console.log(beetttu);
+                                            console.log("XXXXXXXXXXXXXXXXXX");
+                                            console.log(Object.keys(gameX));
+                                            TEst = (Object.keys(gameX)).toString();
+                                            //console.log(TEst);
+                                            //firebase.database().ref("/Tournament").child(sID).child("Games").child(TEst).push(bbArry);
+                                        });
+                                    }
+
+                                    //firebase.database().ref("/Tournament").child(sID).child("Games").child(TEst).set(bbArry);
+                                });
+                                console.log(TEst + " : DTESTS");
+                                firebase.database().ref("/Tournament").child(sID).child("Games").child(TEst).set(arrayRender);
+                                firebase.database().ref("/Tournament").child(sID).child("Round").set(RoundCheck);
+                                //firebase.database().ref("/Tournament").child(sID).child("Games").push(bbArry);
+                                console.log(arrayRender);
+                                renderTournament(sID, user);
+                            }
+                            //console.log(winners);
+                        });
+                        $("#ResetChanges").on("click", () => {
+                            winners = "";
+                            winnersBracket = [];
+                            //renderTournament(sID, user);
+                        });
+                    } else {
+                        console.log("player view");
                     }
 
 
@@ -760,10 +909,33 @@
                 });
                 $("#startbutton").on("click", () => {
                     console.log("Start");
+                    let inx = 0;
+                    let testArr = ["johny", "timer", "ronald", "joo", "burna"]; //stringPlayers.split(",\n");
+                    let bbArry = [
+                        []
+                    ];
+                    let stringP = "";
+                    console.log(testArr.length);
+                    for (let p = 0; p < testArr.length + 2; p++) {
+                        if (inx == 0) {
+                            console.log(testArr[p]);
+                            stringP += testArr[p];
+                            inx += 1;
+                        } else if (inx == 1) {
+                            console.log(testArr[p]);
+                            stringP += ("," + testArr[p]);
+                            inx += 1;
+                        } else {
+                            inx = 0;
+                            console.log(stringP);
+                            bbArry[0].push(stringP.split(","));
+                            stringP = "";
+                            p--;
+                        }
+                    };
                     firebase.database().ref("/Tournament").child(sID).child("Started").set(1);
-                    firebase.database().ref("/Tournament").child(sID).child("Games").push([
-                        [PlayersArray]
-                    ]);
+
+                    firebase.database().ref("/Tournament").child(sID).child("Games").push(bbArry);
                     //theTournament.Started = 1;
                     renderTournament(sID, user);
                 });
