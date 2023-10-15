@@ -743,6 +743,7 @@
                         //$("#homebodyx").append(`<h1 style="position: absolute; top:-3%;left:36%">Round ` + RoundCheck + ` Winners:</h1><h1 id="RoundWinners" style="position: absolute; top:-3%;left:52%"></h1>`);
                         $("#RoundWinners").text(winners);
                         if (theTournament.Won == true) {
+                            $("#status").text("Completed");
                             console.log("Won");
                             $("#RoundPre").text("WINNER: " + arrayRender[RoundCheck - 1][0][0]);
                         } else {
@@ -862,6 +863,7 @@
                         $("#RoundPre").text("Round " + RoundCheck);
                         console.log("player view");
                         if (theTournament.Won == true) {
+                            $("#status").text("Completed");
                             console.log(arrayRender[RoundCheck - 1][0][0]);
                             $("#RoundPre").text("WINNER: " + arrayRender[RoundCheck - 1][0][0]);
                         }
