@@ -139,6 +139,15 @@
             visibility: visible;
         }
         
+        .inviteLink {
+            position: absolute;
+            top: 20%;
+            left: 90%;
+            width: 5%;
+            height: 50%;
+            visibility: visible;
+        }
+        
         .helpbutton {
             position: absolute;
             top: 20%;
@@ -286,6 +295,23 @@
                 //console.log(tryF.displayName, " test");
                 //showNextPage();
             });
+            $("#helpbutton").on("click", () => {
+                const helpReg = $("#modalHelp")[0];
+                $("#emailH").val("");
+                helpReg.showModal();
+                $("#closeHelp").click(() => {
+                    const helpReg = $("#modalHelp")[0];
+                    email = $("#emailH").val();
+                    firebase.auth().sendPasswordResetEmail(email)
+                        .then(() => {
+                            alert("Password reset sent to: " + email);
+                        }).catch((error) => {
+                            var errorMessage = error.message;
+                            alert(errorMessage);
+                        });
+                    helpReg.close();
+                });
+            });
             $("#logbuttonDB").on("click", () => {
                 const logReg = $("#logReg")[0];
                 $("#fnameL").val("");
@@ -295,7 +321,7 @@
                 $("#closeLog").click(() => {
                     const logReg = $("#logReg")[0];
                     password = $("#pwdL").val();
-                    email = $("#emailL").val();;
+                    email = $("#emailL").val();
                     firebase.auth().signInWithEmailAndPassword(email, password).then((userCredential) => {
                             username = $("#fnameL").val();
                             // Signed in
@@ -550,6 +576,12 @@
                 <button class="closeReg" id="closeReg">Submit</button>
             </dialog>
             <button id="helpbutton" class="helpbutton">Need Help?</button>
+            <dialog class="modalHelp" id="modalHelp">
+                <h1 style="text-align: center;">Need Help?</h1>
+                <label for="emailH">Email (for password reset):</label>
+                <input type="email" id="emailH" name="emailH" class="emailH" value=""></input>
+                <button class="closeHelp" id="closeHelp">Submit</button>
+            </dialog>
             <p style="position:absolute;left: 1%;top: 60%;" id="da">Username:</p>
         </div>
         <div class="homebody">
@@ -628,7 +660,7 @@
             $("#main").html("");
             firebase.database().ref(`/Tournament`).child(sID).on("value", ss => {
                 let theTournament = ss.val();
-                $("#main").append(`<div id="toppart" class="toppart"><button id="homebutton" class="homebutton">HOME</button><h1 id="tourneyName"style="position: absolute;left:35%;top:25%">WELCOME TO THE </h1><p style="position:absolute;left: 1%;top: 60%;" id="da">Username:</p><button id="logoutbutton" class="logoutbutton">Logout</button><p style="position:absolute;left: 5.5%;top: 60%;" id="namereg" class="namereg"></p></div><div id="homebodyx" class="homebodyx"><h1 id="introbodyx" class="introbodyx"></h1></div>`);
+                $("#main").append(`<div id="toppart" class="toppart"><button id="homebutton" class="homebutton">HOME</button><button id="inviteLink" class="inviteLink">INVITE</button><h1 id="tourneyName"style="position: absolute;left:35%;top:25%">WELCOME TO THE </h1><p style="position:absolute;left: 1%;top: 60%;" id="da">Username:</p><button id="logoutbutton" class="logoutbutton">Logout</button><p style="position:absolute;left: 5.5%;top: 60%;" id="namereg" class="namereg"></p></div><div id="homebodyx" class="homebodyx"><h1 id="introbodyx" class="introbodyx"></h1></div>`);
                 console.log(username + " : d");
                 $("#namereg").text(username);
                 console.log("Tournment Name: ", theTournament.TournamentName);
@@ -642,6 +674,7 @@
                 $("#current").text(Object.keys(theTournament.Players || {}).length);
                 console.log(Object.keys(theTournament.Players || {})[0], "::::");
                 let stringPlayers = "";
+                let playersLength = 0;
                 console.log(loggedInPerson.displayName + " DDD");
                 firebase.database().ref("/Tournament").child(sID).child("Players").on("value", aa => {
                     let testtt = aa.val();
@@ -650,8 +683,10 @@
                         firebase.database().ref("/Tournament").child(sID).child("Players").child(Object.keys(testtt || {})[i]).on("value", dd => {
                             let la = dd.val();
                             if (i == Object.keys(theTournament.Players || {}).length - 1) {
+                                playersLength += 1;
                                 stringPlayers += (la);
                             } else {
+                                playersLength += 1;
                                 stringPlayers += (la + ",\n");
                             }
 
@@ -665,8 +700,9 @@
                     stringPlayers = (stringPlayers + "\n" + theTournament.Players[i]);
                 };*/
                 //console.log(stringPlayers + "       D");
-
+                playersLength = 3;
                 $("#playerList").text(stringPlayers);
+                console.log(playersLength + " player");
                 //PlayersArray goes from OVERALL TOURNAMENT -> Round -> Dual via arrays
                 console.log(theTournament.Games);
                 //console.log(bbArry);
@@ -691,13 +727,13 @@
                 let vote = -1;
                 if (theTournament.Started == 0) {
                     $("#status").text("Waiting...");
-                    $("#introbodyx").html("");
+                    $("#homebodyx").html("");
                     if (theTournament.OwnerEmail == user.email) {
                         console.log("owner view");
-                        $("#introbodyx").append(`<button id="startbutton">START</button><button id="startbutton">INVITE BUTTON</button>`);
+                        $("#homebodyx").append(`<button id="startbutton"class="startbutton"style="position: absolute; top:30%;left:40%;width:25%;height:25%">START</button>`);
                     } else {
                         console.log("player view");
-                        $("#introbodyx").append(`<button id="joinbutton">JOIN</button>`);
+                        $("#homebodyx").append(`<button id="joinbutton" style="position: absolute; top:30%;left:40%;width:25%;height:25%">JOIN</button>`);
                     }
                 } else {
                     let grabInit = "";
@@ -727,7 +763,8 @@
                     firebase.database().ref("/Tournament").child(sID).child("Round").on("value", kk => {
                         RoundCheck = kk.val();
                     });
-                    $("#introbodyx").html("");
+                    $("#homebodyx").html("");
+                    $("#homebodyx").append(`<h1 id="RoundPre"style="position: absolute; top:-3%;left:36%"></h1><h1 id="RoundWinners" style="position: absolute; top:-3%;left:52%"></h1>`);
                     //$("#introbody").append(``);
                     var more = document.getElementById("introbodyx");
                     for (let i = 0; i < arrayRender.length; i++) {
@@ -764,120 +801,136 @@
                         }
                     }
                     if (theTournament.OwnerEmail == user.email) {
+                        $("#RoundPre").text("Round " + RoundCheck + " Winners:");
                         let bracketWinnersOrder = 0;
                         let winners;
                         let winnersBracket = [];
                         let NumBracketsRound = arrayRender[(RoundCheck - 1)].length;
+                        console.log(arrayRender[-1]);
                         console.log(NumBracketsRound + " : numbrperround");
                         console.log("owner view");
                         console.log(winners + "dd")
                         $("#homebodyx").append(`<button id="SaveChanges"style="position: absolute; top:0%;left:16%;width:10%">Finish Round? (Save Changes)</button>`);
                         $("#homebodyx").append(`<button id="ResetChanges"style="position: absolute; top:0%;left:26%;width:10%">Reset Round?</button>`);
-                        $("#homebodyx").append(`<h1 style="position: absolute; top:-3%;left:36%">Round ` + RoundCheck + ` Winners:</h1><h1 id="RoundWinners" style="position: absolute; top:-3%;left:52%"></h1>`);
+                        //$("#homebodyx").append(`<h1 style="position: absolute; top:-3%;left:36%">Round ` + RoundCheck + ` Winners:</h1><h1 id="RoundWinners" style="position: absolute; top:-3%;left:52%"></h1>`);
                         $("#RoundWinners").text(winners);
-                        $("button").click(function() {
-                            if (this.id !== "SaveChanges" && this.id !== "ResetChanges" && this.id !== "homebutton" && this.id !== "logoutbutton") {
-                                let splitID = this.id.split(" ");
-                                console.log(splitID);
-                                let buttonRoundValue = splitID[1];
-                                let buttonBracketValue = parseInt(splitID[2]);
-                                let buttonIndvValue = splitID[3];
-                                let buttonID = splitID[0];
-                                let found = false;
-                                console.log(buttonBracketValue + " : : " + bracketWinnersOrder);
-                                console.log("click");
-                                for (let u = 0; u < winnersBracket.length; u++) {
-                                    if (winnersBracket[u] === buttonID) {
-                                        found = true;
-                                        alert(buttonID + " has already won this round");
-                                        return;
+                        if (theTournament.Won == true) {
+                            console.log("Won");
+                            $("#RoundPre").text("WINNER: " + arrayRender[RoundCheck - 1][0][0]);
+                        } else {
+                            $("button").click(function() {
+                                if (this.id !== "SaveChanges" && this.id !== "ResetChanges" && this.id !== "homebutton" && this.id !== "logoutbutton") {
+                                    let splitID = this.id.split(" ");
+                                    console.log(splitID);
+                                    let buttonRoundValue = splitID[1];
+                                    let buttonBracketValue = parseInt(splitID[2]);
+                                    let buttonIndvValue = splitID[3];
+                                    let buttonID = splitID[0];
+                                    let found = false;
+                                    console.log(buttonBracketValue + " : : " + bracketWinnersOrder);
+                                    console.log("click");
+                                    for (let u = 0; u < winnersBracket.length; u++) {
+                                        if (winnersBracket[u] === buttonID) {
+                                            found = true;
+                                            alert(buttonID + " has already won this round");
+                                            return;
 
-                                    } else if (winnersBracket[u] === arrayRender[buttonRoundValue][buttonBracketValue][0] || winnersBracket[u] === arrayRender[buttonRoundValue][buttonBracketValue][1]) {
-                                        alert("Someone has already won this round");
-                                        return;
-                                    } else if (buttonRoundValue != (RoundCheck - 1)) {
-                                        alert("Not current round");
-                                        return;
-                                    } else if ((bracketWinnersOrder + 2) !== (buttonBracketValue + 2)) { //dunno why doesnt work but logically should
-                                        alert("Submit wins in order");
-                                        return;
+                                        } else if (winnersBracket[u] === arrayRender[buttonRoundValue][buttonBracketValue][0] || winnersBracket[u] === arrayRender[buttonRoundValue][buttonBracketValue][1]) {
+                                            alert("Someone has already won this round");
+                                            return;
+                                        } else if (buttonRoundValue != (RoundCheck - 1)) {
+                                            alert("Not current round");
+                                            return;
+                                        } else if ((bracketWinnersOrder + 2) !== (buttonBracketValue + 2)) { //dunno why doesnt work but logically should
+                                            alert("Submit wins in order");
+                                            return;
+                                        }
                                     }
+                                    if (found == false) {
+                                        bracketWinnersOrder += 1;
+                                        winnersBracket.push(buttonID);
+                                    }
+                                    console.log(winnersBracket);
+
                                 }
-                                if (found == false) {
-                                    bracketWinnersOrder += 1;
-                                    winnersBracket.push(buttonID);
+                                winners = winnersBracket.toString();
+                                $("#RoundWinners").text(winners);
+                            });
+                            $("#SaveChanges").on("click", () => {
+                                RoundCheck += 1;
+                                let stringD = "";
+                                let pushingArray = [];
+                                let indP = 0;
+                                console.log(NumBracketsRound + ": D");
+                                console.log(winnersBracket.length + ": L");
+                                winners = winnersBracket.toString();
+                                if (winnersBracket.length < NumBracketsRound) {
+                                    alert((NumBracketsRound - winnersBracket.length) + " brackets have not been entered");
+                                } else {
+                                    for (let e = 0; e < winnersBracket.length + 2; e++) {
+                                        if (indP == 0) {
+                                            console.log(winnersBracket[e]);
+                                            stringD += winnersBracket[e];
+                                            indP += 1;
+                                        } else if (indP == 1) {
+                                            console.log(winnersBracket[e]);
+                                            stringD += ("," + winnersBracket[e]);
+                                            indP += 1;
+                                        } else {
+                                            indP = 0;
+                                            console.log(stringD);
+                                            pushingArray.push(stringD.split(","));
+                                            stringD = "";
+                                            e--;
+                                        }
+                                    };
+                                    arrayRender.push(pushingArray);
+                                    let TEst = "";
+                                    firebase.database().ref("/Tournament").child(sID).child("Games").on("value", rr => {
+                                        let gameX = rr.val();
+                                        console.log(gameX);
+                                        console.log("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDd");
+                                        for (let g = 0; g < Object.keys(theTournament.Games || {}).length; g++) {
+                                            console.log(Object.keys(gameX || {})[g], " : i");
+                                            firebase.database().ref("/Tournament").child(sID).child("Games").child(Object.keys(gameX || {})[g]).on("value", ee => {
+                                                let beetttu = ee.val();
+                                                console.log(beetttu);
+                                                console.log("XXXXXXXXXXXXXXXXXX");
+                                                console.log(Object.keys(gameX));
+                                                TEst = (Object.keys(gameX)).toString();
+                                                //console.log(TEst);
+                                                //firebase.database().ref("/Tournament").child(sID).child("Games").child(TEst).push(bbArry);
+                                            });
+                                        }
+
+                                        //firebase.database().ref("/Tournament").child(sID).child("Games").child(TEst).set(bbArry);
+                                    });
+                                    console.log(TEst + " : DTESTS");
+                                    firebase.database().ref("/Tournament").child(sID).child("Games").child(TEst).set(arrayRender);
+                                    firebase.database().ref("/Tournament").child(sID).child("Round").set(RoundCheck);
+                                    console.log(RoundCheck + " : ::::::::: " + playersLength);
+                                    if (RoundCheck >= (playersLength)) {
+                                        firebase.database().ref("/Tournament").child(sID).child("Won").set(true);
+                                    }
+                                    //firebase.database().ref("/Tournament").child(sID).child("Games").push(bbArry);
+                                    console.log(arrayRender);
+                                    renderTournament(sID, user);
                                 }
-                                console.log(winnersBracket);
-
-                            }
-                            winners = winnersBracket.toString();
-                            $("#RoundWinners").text(winners);
-                        });
-                        $("#SaveChanges").on("click", () => {
-                            RoundCheck += 1;
-                            let stringD = "";
-                            let pushingArray = [];
-                            let indP = 0;
-                            console.log(NumBracketsRound + ": D");
-                            console.log(winnersBracket.length + ": L");
-                            winners = winnersBracket.toString();
-                            if (winnersBracket.length < NumBracketsRound) {
-                                alert((NumBracketsRound - winnersBracket.length) + " brackets have not been entered");
-                            } else {
-                                for (let e = 0; e < winnersBracket.length + 2; e++) {
-                                    if (indP == 0) {
-                                        console.log(winnersBracket[e]);
-                                        stringD += winnersBracket[e];
-                                        indP += 1;
-                                    } else if (indP == 1) {
-                                        console.log(winnersBracket[e]);
-                                        stringD += ("," + winnersBracket[e]);
-                                        indP += 1;
-                                    } else {
-                                        indP = 0;
-                                        console.log(stringD);
-                                        pushingArray.push(stringD.split(","));
-                                        stringD = "";
-                                        e--;
-                                    }
-                                };
-                                arrayRender.push(pushingArray);
-                                let TEst = "";
-                                firebase.database().ref("/Tournament").child(sID).child("Games").on("value", rr => {
-                                    let gameX = rr.val();
-                                    console.log(gameX);
-                                    console.log("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDd");
-                                    for (let g = 0; g < Object.keys(theTournament.Games || {}).length; g++) {
-                                        console.log(Object.keys(gameX || {})[g], " : i");
-                                        firebase.database().ref("/Tournament").child(sID).child("Games").child(Object.keys(gameX || {})[g]).on("value", ee => {
-                                            let beetttu = ee.val();
-                                            console.log(beetttu);
-                                            console.log("XXXXXXXXXXXXXXXXXX");
-                                            console.log(Object.keys(gameX));
-                                            TEst = (Object.keys(gameX)).toString();
-                                            //console.log(TEst);
-                                            //firebase.database().ref("/Tournament").child(sID).child("Games").child(TEst).push(bbArry);
-                                        });
-                                    }
-
-                                    //firebase.database().ref("/Tournament").child(sID).child("Games").child(TEst).set(bbArry);
-                                });
-                                console.log(TEst + " : DTESTS");
-                                firebase.database().ref("/Tournament").child(sID).child("Games").child(TEst).set(arrayRender);
-                                firebase.database().ref("/Tournament").child(sID).child("Round").set(RoundCheck);
-                                //firebase.database().ref("/Tournament").child(sID).child("Games").push(bbArry);
-                                console.log(arrayRender);
+                                //console.log(winners);
+                            });
+                            $("#ResetChanges").on("click", () => {
+                                winners = "";
+                                winnersBracket = [];
                                 renderTournament(sID, user);
-                            }
-                            //console.log(winners);
-                        });
-                        $("#ResetChanges").on("click", () => {
-                            winners = "";
-                            winnersBracket = [];
-                            //renderTournament(sID, user);
-                        });
+                            });
+                        }
                     } else {
+                        $("#RoundPre").text("Round " + RoundCheck);
                         console.log("player view");
+                        if (theTournament.Won == true) {
+                            console.log(arrayRender[RoundCheck - 1][0][0]);
+                            $("#RoundPre").text("WINNER: " + arrayRender[RoundCheck - 1][0][0]);
+                        }
                     }
 
 
@@ -910,7 +963,7 @@
                 $("#startbutton").on("click", () => {
                     console.log("Start");
                     let inx = 0;
-                    let testArr = ["johny", "timer", "ronald", "joo", "burna"]; //stringPlayers.split(",\n");
+                    let testArr = stringPlayers.split(",\n");
                     let bbArry = [
                         []
                     ];
@@ -941,8 +994,19 @@
                 });
                 $("#homebutton").on("click", () => {
                     pn = "https://cisc472-tournament-zach.web.app/";
-                    window.location.href = 'http://127.0.0.1:5000/'; //change link to https://cisc472-tournament-zach.web.app/ when deploy
+                    window.location.href = 'https://cisc472-tournament-zach.web.app/'; //change link to https://cisc472-tournament-zach.web.app/ when deploy
                     routeToPage(["https://cisc472-tournament-zach.web.app"], loggedInPerson);
+                });
+                $("#inviteLink").on("click", () => {
+                    var dummy = document.createElement('input'),
+                        text = window.location.href;
+
+                    document.body.appendChild(dummy);
+                    dummy.value = text;
+                    dummy.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(dummy);
+                    alert("Your invite link has been copied to your clipboard!");
                 });
                 //firebase.database().ref("/Tournament").child(sID).child("Players").push(loggedInPerson.displayName);
                 console.log(theTournament.players);
