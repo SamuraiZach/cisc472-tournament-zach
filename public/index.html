@@ -750,7 +750,7 @@
                             $("#RoundPre").text("WINNER: " + arrayRender[RoundCheck - 1][0][0]);
                         } else {
                             $("button").click(function() {
-                                if (this.id !== "SaveChanges" && this.id !== "ResetChanges" && this.id !== "homebutton" && this.id !== "logoutbutton") {
+                                if (this.id !== "SaveChanges" && this.id !== "ResetChanges" && this.id !== "homebutton" && this.id !== "logoutbutton" && this.id !== "inviteLink" && this.id !== "inviteID") {
                                     let splitID = this.id.split(" ");
                                     console.log(splitID);
                                     let buttonRoundValue = splitID[1];
@@ -872,7 +872,9 @@
                             $("#RoundPre").text("WINNER: " + arrayRender[RoundCheck - 1][0][0]);
                         } else {
                             $("button").click(function() {
-                                alert("Only the owner can make bracket changes.");
+                                if (this.id !== "SaveChanges" && this.id !== "ResetChanges" && this.id !== "homebutton" && this.id !== "logoutbutton" && this.id !== "inviteLink" && this.id !== "inviteID") {
+                                    alert("Only the owner can make bracket changes.");
+                                }
                             });
                         }
                     }
@@ -954,7 +956,7 @@
                     dummy.select();
                     document.execCommand('copy');
                     document.body.removeChild(dummy);
-                    alert("Your invite link has been copied to your clipboard!");
+                    alert("Tournament invite link has been copied to your clipboard!");
                 });
                 $("#inviteID").on("click", () => {
                     var dummy = document.createElement('input'),
@@ -965,7 +967,7 @@
                     dummy.select();
                     document.execCommand('copy');
                     document.body.removeChild(dummy);
-                    alert("Your tournament ID has been copied to your clipboard!");
+                    alert("Tournament ID has been copied to your clipboard!");
                 });
                 //firebase.database().ref("/Tournament").child(sID).child("Players").push(loggedInPerson.displayName);
                 console.log(theTournament.players);
