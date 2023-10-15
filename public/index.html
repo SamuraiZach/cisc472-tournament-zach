@@ -638,6 +638,9 @@
                 let stringPlayers = "";
                 let playersLength = 0;
                 console.log(loggedInPerson.displayName + " DDD");
+
+                //EVERY TIME A PLAYER JOINS THE TOURNAMENT THEY ARE ADDED TO A STRING AND COUNTED! WHICH WHEN OWNER PRESSES START IT GETS PARSED BELOW
+
                 firebase.database().ref("/Tournament").child(sID).child("Players").on("value", aa => {
                     let testtt = aa.val();
                     for (let i = 0; i < Object.keys(theTournament.Players || {}).length; i++) {
@@ -656,13 +659,12 @@
                         });
                     };
                 });
-                //playersLength = 3;
                 $("#playerList").text(stringPlayers);
                 console.log(playersLength + " player");
                 //PlayersArray goes from OVERALL TOURNAMENT -> Round -> Dual via arrays
                 console.log(theTournament.Games);
                 let vote = -1;
-                if (theTournament.Started == 0) {
+                if (theTournament.Started == 0) { //game hasnt started
                     $("#status").text("Waiting...");
                     $("#homebodyx").html("");
                     if (theTournament.OwnerEmail == user.email) {
@@ -672,7 +674,8 @@
                         console.log("player view");
                         $("#homebodyx").append(`<button id="joinbutton" style="position: absolute; top:30%;left:40%;width:25%;height:25%;font-size: xx-large">JOIN</button>`);
                     }
-                } else {
+                } else { //game started
+                    //
                     let grabInit = "";
                     let arrayRender = [];
                     firebase.database().ref("/Tournament").child(sID).child("Games").on("value", jj => {
@@ -687,12 +690,8 @@
                                 console.log("XXXXXXXXXXXXXXXXXX");
                                 console.log(Object.keys(gameInit));
                                 grabInit = (Object.keys(gameInit)).toString();
-                                //console.log(TEst);
-                                //firebase.database().ref("/Tournament").child(sID).child("Games").child(TEst).push(bbArry);
                             });
                         }
-
-                        //firebase.database().ref("/Tournament").child(sID).child("Games").child(TEst).set(bbArry);
                     });
 
                     $("#status").text("Ongoing");
@@ -700,10 +699,13 @@
                     firebase.database().ref("/Tournament").child(sID).child("Round").on("value", kk => {
                         RoundCheck = kk.val();
                     });
+                    //grabs round value each time
                     $("#homebodyx").html("");
                     $("#homebodyx").append(`<h1 id="RoundPre"style="position: absolute; top:-3%;left:36%"></h1><h1 id="RoundWinners" style="position: absolute; top:-3%;left:49.5%"></h1>`);
-                    //$("#introbody").append(``);
                     var more = document.getElementById("introbodyx");
+                    //NEEDS TO PARSE THROUGH THREE SPOTS IE IN OVERALL GAME -> (ROUND -> BRACKET -> 1 or 2) for indentation!! IE FIRST ROUND FIRST BRACKET FIRST PERSON -> arrayRender[0][0][0] 
+                    //THIS FOR LOOP STARTS FROM EACH ROUND THEN TO EACH BRACKET THEN LASTLY INDIVIDUAL!
+                    //HAS COUNT SINCE IT NEEDS TO RENDER THE SPACER
                     for (let i = 0; i < arrayRender.length; i++) {
                         let count = 0;
                         let playersCount = 0;
@@ -728,6 +730,7 @@
                             }
                         }
                     }
+                    //THE TOURNAMENT OWNER CAN MAKE CHANGES AND PRESS THE BUTTONS!
                     if (theTournament.OwnerEmail == user.email) {
                         $("#RoundPre").text("Round " + RoundCheck + " Winners:");
                         let bracketWinnersOrder = 0;
@@ -740,7 +743,6 @@
                         console.log(winners + "dd")
                         $("#homebodyx").append(`<button id="SaveChanges"style="position: absolute; top:0%;left:16%;width:10%">Finish Round? (Save Changes)</button>`);
                         $("#homebodyx").append(`<button id="ResetChanges"style="position: absolute; top:0%;left:26%;width:10%">Reset Round?</button>`);
-                        //$("#homebodyx").append(`<h1 style="position: absolute; top:-3%;left:36%">Round ` + RoundCheck + ` Winners:</h1><h1 id="RoundWinners" style="position: absolute; top:-3%;left:52%"></h1>`);
                         $("#RoundWinners").text(winners);
                         if (theTournament.Won == true) {
                             $("#status").text("Completed");
@@ -785,6 +787,8 @@
                                 winners = winnersBracket.toString();
                                 $("#RoundWinners").text(winners);
                             });
+                            //IMPORTANT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                            //WHEN OWNER PRESSES SAVE CHANGES IT GRABS THE STRING OF WINNERS AND DOES THE SAME PARSE FROM STRING TO BRACKET SYSTEM THEN PUSHES TO FIREBASE
                             $("#SaveChanges").on("click", () => {
                                 RoundCheck += 1;
                                 let stringD = "";
@@ -866,6 +870,10 @@
                             $("#status").text("Completed");
                             console.log(arrayRender[RoundCheck - 1][0][0]);
                             $("#RoundPre").text("WINNER: " + arrayRender[RoundCheck - 1][0][0]);
+                        } else {
+                            $("button").click(function() {
+                                alert("Only the owner can make bracket changes.");
+                            });
                         }
                     }
 
@@ -896,6 +904,10 @@
                     console.log(firebase.database().ref("/Tournament").child(sID).child("Players").child(loggedInPerson.uid).child(loggedInPerson.displayName).getKey() + ": uidLol");
                     renderTournament(sID, user);
                 });
+                //OWNER HAS ACCESS TO START BUTTON WHICH SPLITS THE PLAYER STRING RENDERED EACH TIME FROM FIREBASE 
+                //PUSHES INTO BRACKET IN TEAMS OF TWO AND IF THERE IS A BYE ITS UNDEFINED
+                //INIT A STRING WHICH IS THEN CONCATED WITH PLAYER NAMES THEN SPLIT INTO THE FIRST ROUND BECAUSE A SPLIT MAKES AN ARRAY
+                //IE -> "john" and "nn" GET ADDED TO STRING AS "john,nn" THEN GET SPLIT AS ["john","nn"] WHICH IS THEN PUSHED INTO THE BIGGER ARRAY WHICH WHEN ALL COMPLETE PUSHED INTO FIREBASE FOR INIT ROUND
                 $("#startbutton").on("click", () => {
                     console.log("Start");
                     let inx = 0;
@@ -922,7 +934,7 @@
                             p--;
                         }
                     };
-                    firebase.database().ref("/Tournament").child(sID).child("Started").set(1);
+                    firebase.database().ref("/Tournament").child(sID).child("Started").set(1); //sets game to start
 
                     firebase.database().ref("/Tournament").child(sID).child("Games").push(bbArry);
                     //theTournament.Started = 1;
