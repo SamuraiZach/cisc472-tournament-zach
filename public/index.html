@@ -404,7 +404,7 @@
                 modalJoin.showModal();
                 $("#closeJoin").click(() => {
                     const tournamentID = $("#tlink").val();
-                    console.log(urlP);
+                    //console.log(urlP);
                     routeToPage(["cisc472-tournament-zach.web.app", "Tournament", tournamentID], loggedInPerson);
                     modalJoin.close();
                 });
@@ -500,17 +500,25 @@
             } else {
                 if (parts[1] == "Tournament" && parts[2].length > 1) {
                     //renderSurvey(parts[2]);
+                    let foundT = false;
                     firebase.database().ref("/Tournament").on("value", uu => {
                         let tourneyID = uu.val();
+                        console.log(tourneyID);
                         Object.keys(tourneyID).map(sID => {
-                            if (sID == parts[2]) {
+                            console.log(sID + " ----- : " + parts[2]);
+                            if (sID === parts[2]) {
                                 renderTournament(parts[2], user);
+                                console.log("FUCKC");
+                                foundT = true;
                             }
                         });
+                        if (foundT == false) {
+                            alert("Tournament Doesnt Exist / Invalid Link");
+                            //showNextPage();
+                            window.location.href = 'https://cisc472-tournament-zach.web.app';
+                            startApp(user);
+                        }
                     });
-                    alert("Tournament Doesnt Exist / Invalid Link");
-                    //showNextPage();
-                    startApp(user);
                 } else {
                     alert("Tournament Doesnt Exist / Invalid Link");
                     //showNextPage();
