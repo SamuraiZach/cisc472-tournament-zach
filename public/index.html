@@ -883,6 +883,7 @@
 
                 }
                 $("#logoutbutton").on("click", () => {
+                    window.location.href = 'https://cisc472-tournament-zach.web.app';
                     firebase.auth().signOut();
                 });
                 if ((theTournament.Joined || {}).hasOwnProperty(loggedInPerson.uid)) {
