@@ -306,10 +306,14 @@
                                 console.log(user.displayName, " inside 2");
                             })
                             .catch(function(error) {
-                                console.log("error");
+                                //var errorMessage = error.message;
+                                //alert(errorMessage);
                             });
                         console.log(user.displayName, " after catch");
 
+                    }).catch(function(error) {
+                        var errorMessage = error.message;
+                        alert(errorMessage);
                     });
                     console.log("teehee");
                     signtype = "free";
