@@ -143,8 +143,17 @@
             position: absolute;
             top: 20%;
             left: 90%;
-            width: 5%;
+            width: 7%;
             height: 50%;
+            visibility: visible;
+        }
+        
+        .inviteID {
+            position: absolute;
+            top: 70%;
+            left: 90%;
+            width: 7%;
+            height: 10%;
             visibility: visible;
         }
         
@@ -389,6 +398,17 @@
             $("#logoutbutton").on("click", () => {
                 firebase.auth().signOut();
             });
+            $("#jointourney").on("click", () => {
+                const modalJoin = $("#modalJoin")[0];
+                $("#tlink").val("");
+                modalJoin.showModal();
+                $("#closeJoin").click(() => {
+                    const tournamentID = $("#tlink").val();
+                    console.log(urlP);
+                    routeToPage(["cisc472-tournament-zach.web.app", "Tournament", tournamentID], loggedInPerson);
+                    modalJoin.close();
+                });
+            });
             $("#createtourney").on("click", () => {
                 const modalCreate = $("#modalCreate")[0];
                 $("#tname").val("");
@@ -480,8 +500,17 @@
             } else {
                 if (parts[1] == "Tournament" && parts[2].length > 1) {
                     //renderSurvey(parts[2]);
-                    renderTournament(parts[2], user);
-                    console.log("teehee");
+                    firebase.database().ref("/Tournament").on("value", uu => {
+                        let tourneyID = uu.val();
+                        Object.keys(tourneyID).map(sID => {
+                            if (sID == parts[2]) {
+                                renderTournament(parts[2], user);
+                            }
+                        });
+                    });
+                    alert("Tournament Doesnt Exist / Invalid Link");
+                    //showNextPage();
+                    startApp(user);
                 } else {
                     alert("Tournament Doesnt Exist / Invalid Link");
                     //showNextPage();
@@ -613,6 +642,12 @@
                 <button class="closeCreate" id="closeCreate">Create!</button>
             </dialog>
             <button id="jointourney" class="jointourney">JOIN A TOURNEY!</button>
+            <dialog class="modalJoin" id="modalJoin">
+                <h1 style="text-align: center;">Join a tournament!</h1>
+                <label for="tlink">Tournament ID:</label>
+                <input type="text" id="tlink" name="tlink" class="tlink" value=""></input>
+                <button class="closeJoin" id="closeJoin">Join!</button>
+            </dialog>
         </div>
         <div id="linkGlobalTables" class="linkGlobalTables"></div>
         <div id="yourTables" class="yourTables"></div>`);
@@ -660,7 +695,7 @@
             $("#main").html("");
             firebase.database().ref(`/Tournament`).child(sID).on("value", ss => {
                 let theTournament = ss.val();
-                $("#main").append(`<div id="toppart" class="toppart"><button id="homebutton" class="homebutton">HOME</button><button id="inviteLink" class="inviteLink">INVITE</button><h1 id="tourneyName"style="position: absolute;left:35%;top:25%">WELCOME TO THE </h1><p style="position:absolute;left: 1%;top: 60%;" id="da">Username:</p><button id="logoutbutton" class="logoutbutton">Logout</button><p style="position:absolute;left: 5.5%;top: 60%;" id="namereg" class="namereg"></p></div><div id="homebodyx" class="homebodyx"><h1 id="introbodyx" class="introbodyx"></h1></div>`);
+                $("#main").append(`<div id="toppart" class="toppart"><button id="homebutton" class="homebutton">HOME</button><button id="inviteLink" class="inviteLink">INVITE</button><button id="inviteID" class="inviteID">Tournament ID</button><h1 id="tourneyName"style="position: absolute;left:35%;top:25%">WELCOME TO THE </h1><p style="position:absolute;left: 1%;top: 60%;" id="da">Username:</p><button id="logoutbutton" class="logoutbutton">Logout</button><p style="position:absolute;left: 5.5%;top: 60%;" id="namereg" class="namereg"></p></div><div id="homebodyx" class="homebodyx"><h1 id="introbodyx" class="introbodyx"></h1></div>`);
                 console.log(username + " : d");
                 $("#namereg").text(username);
                 console.log("Tournment Name: ", theTournament.TournamentName);
@@ -730,10 +765,10 @@
                     $("#homebodyx").html("");
                     if (theTournament.OwnerEmail == user.email) {
                         console.log("owner view");
-                        $("#homebodyx").append(`<button id="startbutton"class="startbutton"style="position: absolute; top:30%;left:40%;width:25%;height:25%">START</button>`);
+                        $("#homebodyx").append(`<button id="startbutton"class="startbutton"style="position: absolute; top:30%;left:40%;width:25%;height:25%;font-size: xx-large">START</button>`);
                     } else {
                         console.log("player view");
-                        $("#homebodyx").append(`<button id="joinbutton" style="position: absolute; top:30%;left:40%;width:25%;height:25%">JOIN</button>`);
+                        $("#homebodyx").append(`<button id="joinbutton" style="position: absolute; top:30%;left:40%;width:25%;height:25%;font-size: xx-large">JOIN</button>`);
                     }
                 } else {
                     let grabInit = "";
@@ -1007,6 +1042,17 @@
                     document.execCommand('copy');
                     document.body.removeChild(dummy);
                     alert("Your invite link has been copied to your clipboard!");
+                });
+                $("#inviteID").on("click", () => {
+                    var dummy = document.createElement('input'),
+                        text = sID;
+
+                    document.body.appendChild(dummy);
+                    dummy.value = text;
+                    dummy.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(dummy);
+                    alert("Your tournament ID has been copied to your clipboard!");
                 });
                 //firebase.database().ref("/Tournament").child(sID).child("Players").push(loggedInPerson.displayName);
                 console.log(theTournament.players);
