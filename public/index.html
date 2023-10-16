@@ -725,7 +725,7 @@
                                         playersCount += 1;
                                         console.log("Player: " + r);
                                         console.log((((5 * playersCount) * (i + 1))) + " : Top Position for ->" + arrayRender[i][k][r]);
-                                        $("#homebodyx").append(`<button id="` + arrayRender[i][k][r] + " " + i + " " + k + " " + r + `"style="position: absolute; top:` + (((5 * playersCount) * (i + 1))) + `%;left:` + (16 * (i + 1)) + `%;width:8%">` + arrayRender[i][k][r] + `</button>`);
+                                        $("#homebodyx").append(`<button id="` + arrayRender[i][k][r] + "-" + i + "-" + k + "-" + r + `"style="position: absolute; top:` + (((5 * playersCount) * (i + 1))) + `%;left:` + (16 * (i + 1)) + `%;width:8%">` + arrayRender[i][k][r] + `</button>`);
                                     }
                                 } else {
                                     //count = 0;
@@ -757,7 +757,7 @@
                         } else {
                             $("button").click(function() {
                                 if (this.id !== "SaveChanges" && this.id !== "ResetChanges" && this.id !== "homebutton" && this.id !== "logoutbutton" && this.id !== "inviteLink" && this.id !== "inviteID") {
-                                    let splitID = this.id.split(" ");
+                                    let splitID = this.id.split("-");
                                     console.log(splitID);
                                     let buttonRoundValue = splitID[1];
                                     let buttonBracketValue = parseInt(splitID[2]);
